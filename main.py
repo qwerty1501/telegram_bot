@@ -11,28 +11,25 @@ logging.basicConfig(level=logging.INFO)
 def jsonapi():
     print('das')
     r = requests.get('https://api.tez-shop.com.kg/prod-list/?format=json')
-    data = r.json()
-    
-    return data[-1]
+    products = r.json()
+    return products
 
-# Хэндлер на команду /test1
+# Хэндлер на команду /start
 @dp.message_handler(commands="start")
 async def cmd_test1(message: types.Message):
-    print('123')
-    data = dict(jsonapi())
-    print(data)
-    nal = data['are_available']
-    if nal == True:
-        nal = 'Нет в наличии'
-    else:
-        nal = 'Есть в наличии'
-    caption = (f'''
-Навзание заказа - {data['name']}
-Цена - {data['price']}
-{nal}
-
-''')
-    await bot.send_photo(chat_id=message.chat.id, photo=data['img'], caption=caption)
+    products = jsonapi()
+    
+    for data in products[:10]:
+        caption = f"""
+        Навзание заказа - {data['name']}
+        Цена - {data['price']}
+        """
+        img_url = data['img']
+        
+        if 'webp' in img_url:
+            img_url = 'https://www.groupestate.gr/images/joomlart/demo/default.jpg'
+        
+        await bot.send_photo(chat_id=message.chat.id, photo=img_url, caption=caption)
 
 
 if __name__ == "__main__":
